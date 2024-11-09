@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
+// TODO: implement navigation to dashboard upon successful login.
+
+
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +19,7 @@ const LoginPage = () => {
     try { 
       const response = await api.post('/auth/login', {username, password});
       console.log('Login Successful: ', response.data);
+      //navigate(/dashboard); 
     } catch (error){
       console.error('Login Failed', error);
     }
