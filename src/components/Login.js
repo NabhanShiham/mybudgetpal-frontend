@@ -27,13 +27,13 @@ const LoginPage = () => {
         type="text"
         placeholders="Username"
         value={username}
-        onChanges={(e) = setUsername(e.target.value)}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type="password"
         placeholders="Password"
         value={password}
-        onChanges={(e) = setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value)}
       />
       <button type="submit">Login</button>
     </form>
