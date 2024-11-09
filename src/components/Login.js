@@ -8,6 +8,7 @@ import api from '../api';
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [authenticated, setAuthenticated] = useState(localStorage.getItem(localStorage.getItem("authenticated")|| false));
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -18,8 +19,12 @@ const LoginPage = () => {
     }
     try { 
       const response = await api.post('/auth/login', {username, password});
-      console.log('Login Successful: ', response.data);
-      //navigate(/dashboard); 
+      if (response.status == 200){
+        setAuthenticated(true);
+        localStorage.setItem("authenticated", true);
+        console.log("Login Success.");
+        navigate("/dashboard");
+      } 
     } catch (error){
       console.error('Login Failed', error);
     }
