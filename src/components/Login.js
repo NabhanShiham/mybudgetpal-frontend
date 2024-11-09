@@ -14,7 +14,7 @@ const LoginPage = () => {
       return;
     }
     try { 
-      const response = await api.post('/login', {username, password});
+      const response = await api.post('/auth/login', {username, password});
       console.log('Login Successful: ', response.data);
     } catch (error){
       console.error('Login Failed', error);
