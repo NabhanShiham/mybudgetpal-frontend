@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import { useNavigate } from 'react-router-dom';
 
 // TODO:  actually implement a method to retrieve and maintain userID information in local storage.
 
 function Dashboard() {
   const [profile, setProfile] = useState(null);
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(null);
+  const [error, setError] = useState(null);
+  const [newProfile, setNewProfile] = useState({
     username: '',
     firstName: '',
     lastName: '',
@@ -14,47 +17,66 @@ function Dashboard() {
     mainBudget: 0,
     currentSpent: 0,
   });
+  
+  const navigate = useNavigate();
 
-  // Fetch user profile 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchUserProfile = async () => {
       try {
-        // Assuming the user ID is available via authentication context or local storage
-        const userId = "USER_ID";  // Replace with actual method to retrieve user ID
-        const response = await api.get(`/user-profiles/${userId}`);
+        const token = localStorage.getItem('token');
+        const response = await api.get('/api/user-profiles/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         setProfile(response.data);
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        if (error.response){
+          if (error.response.status === 401){
+            setError("Unauthorized Access");
+          } else if (error.response.status === 404){
+            setError("User profile not found");
+          } else {
+            setError("Failed to fetch user profile");
+          }
+        } else {
+          setError("Network error or server unreachable");
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchProfile();
+    fetchUserProfile();
   }, []);
 
-  const createUserProfile = async (profileData) => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewProfile({ ...newProfile, [name]: value });
+  };
+
+  const handleCreateProfile = async (e) => {
+    e.preventDefault();
     try {
-      const response = await api.post("/user-profiles", profileData);
-      if (response.status == 200) {
-        console.log("Profile created successfully:", response.data);
-        setProfile(response.data);
-      }
+      const token = localStorage.getItem('token');
+      await api.post('/api/user-profiles', newProfile, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      navigate(0); // Reload the page to fetch the new profile
     } catch (error) {
-      console.error("Error creating profile:", error);
+      setError('Failed to create user profile');
     }
   };
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-    await createUserProfile(formData);
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div>
@@ -72,61 +94,61 @@ function Dashboard() {
       ) : (
         <div>
           <h1>Let's create your profile!</h1>
-          <form onSubmit={handleFormSubmit}>
+          <form onSubmit={handleCreateProfile}>
             <label>Username:</label>
             <input
               type="text"
               name="username"
-              value={formData.username}
-              onChange={handleChange}
+              value={newProfile.username}
+              onChange={handleInputChange}
               required
             />
             <label>First Name:</label>
             <input
               type="text"
               name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
+              value={newProfile.firstName}
+              onChange={handleInputChange}
               required
             />
             <label>Last Name:</label>
             <input
               type="text"
               name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
+              value={newProfile.lastName}
+              onChange={handleInputChange}
               required
             />
             <label>Email:</label>
             <input
               type="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={newProfile.email}
+              onChange={handleInputChange}
               required
             />
             <label>Phone Number:</label>
             <input
               type="tel"
               name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
+              value={newProfile.phoneNumber}
+              onChange={handleInputChange}
               required
             />
             <label>Main Budget:</label>
             <input
               type="number"
               name="mainBudget"
-              value={formData.mainBudget}
-              onChange={handleChange}
+              value={newProfile.mainBudget}
+              onChange={handleInputChange}
               required
             />
             <label>Current Spent:</label>
             <input
               type="number"
               name="currentSpent"
-              value={formData.currentSpent}
-              onChange={handleChange}
+              value={newProfile.currentSpent}
+              onChange={handleInputChange}
               required
             />
             <button type="submit">Create Profile</button>
