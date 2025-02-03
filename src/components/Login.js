@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import './styles/Login.css';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -14,11 +15,19 @@ const LoginPage = () => {
       return;
     }
     try {
-      const response = await api.post('/auth/login', { username, password });
+      const params = new URLSearchParams();
+      params.append('username', username);
+      params.append('password', password);
+
+      const response = await api.post('/auth/login', params, {
+        withCredentials: true, // Include cookies in the request
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
       if (response.status === 200) {
-        const { token } = response.data;
-        console.log("Login Success. Token stored: ", token);
-        navigate("/dashboard");
+        console.log('Login Success.');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Login Failed', error);
@@ -26,23 +35,25 @@ const LoginPage = () => {
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h1>Log in</h1>
-    <form onSubmit={handleLogin}>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+      <form onSubmit={handleLogin}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit" disabled={!username || !password}>
+          Login
+        </button>
+      </form>
     </div>
   );
 };

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
-import { useNavigate } from 'react-router-dom';
-
-// TODO:  actually implement a method to retrieve and maintain userID information in local storage.
+import './styles/Dashboard.css';
 
 function Dashboard() {
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState('');
   const [error, setError] = useState(null);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [newProfile, setNewProfile] = useState({
     username: '',
     firstName: '',
@@ -17,141 +17,199 @@ function Dashboard() {
     mainBudget: 0,
     currentSpent: 0,
   });
-  
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await api.get('/api/user-profiles/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        setProfile(response.data);
-      } catch (error) {
-        if (error.response){
-          if (error.response.status === 401){
-            setError("Unauthorized Access");
-          } else if (error.response.status === 404){
-            setError("User profile not found");
-          } else {
-            setError("Failed to fetch user profile");
-          }
-        } else {
-          setError("Network error or server unreachable");
+    const fetchUserId = async () => {
+        try {
+            const response = await api.get('/user-id', { withCredentials: true });
+            if (response.status === 200) {
+                setUserId(response.data);
+            } else {
+                console.error('Failed to fetch userId, status:', response.status);
+                setError('Failed to fetch userId');
+            }
+        } catch (error) {
+            console.error('Failed to fetch userId', error);
+            setError('Failed to fetch userId');
+            setLoading(false);
         }
-      } finally {
-        setLoading(false);
-      }
     };
 
-    fetchUserProfile();
-  }, []);
+    fetchUserId();
+}, []);
+
+  useEffect(() => {
+    if (userId) {
+      const fetchUserProfile = async () => {
+        try {
+          const response = await api.get(`/user-profiles/${userId}`, {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const profileData = response.data;
+          setProfile(profileData);
+          setNewProfile({
+            username: profileData.username || '',
+            firstName: profileData.firstName || '',
+            lastName: profileData.lastName || '',
+            email: profileData.email || '',
+            phoneNumber: profileData.phoneNumber || '',
+            mainBudget: profileData.mainBudget || 0,
+            currentSpent: profileData.currentSpent || 0,
+          });
+        } catch (error) {
+          if (error.response) {
+            if (error.response.status === 401) {
+              setError('Unauthorized Access');
+            } else if (error.response.status === 404) {
+              setError('User profile not found');
+            } else {
+              setError('Failed to fetch user profile');
+            }
+          } else {
+            setError('Network error or server unreachable');
+          }
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchUserProfile();
+    }
+  }, [userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewProfile({ ...newProfile, [name]: value });
   };
 
-  const handleCreateProfile = async (e) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
+
     try {
-      const token = localStorage.getItem('token');
-      await api.post('/api/user-profiles', newProfile, {
+      const response = await api.put('/user-profiles', newProfile, {
+        withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Content-Type': 'application/json',
+        },
       });
-      navigate(0); // Reload the page to fetch the new profile
+      setProfile(response.data);
+      alert('Profile updated successfully');
+      setShowUpdateForm(false);
     } catch (error) {
-      setError('Failed to create user profile');
+      console.error('Error updating profile:', error);
+      if (error.response) {
+        if (error.response.status === 401) {
+          setError('Unauthorized Access');
+        } else if (error.response.status === 404) {
+          setError('Profile not found. Please create a new profile.');
+        } else {
+          setError('Failed to update profile');
+        }
+      } else {
+        setError('Network error or server unreachable');
+      }
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="dashboard-loading">Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="dashboard-error">{error}</div>;
   }
 
   return (
-    <div>
-      <h2>Dashboard</h2>
-      {profile ? (
-        <div>
-          <h3>Welcome to your profile, {profile.username}!</h3>
-          <p>First Name: {profile.firstName}</p>
-          <p>Last Name: {profile.lastName}</p>
-          <p>Email: {profile.email}</p>
-          <p>Phone Number: {profile.phoneNumber}</p>
-          <p>Main Budget: {profile.mainBudget}</p>
-          <p>Current Spent: {profile.currentSpent}</p>
+    <div className="dashboard-container">
+      <h1>Welcome to Your Dashboard</h1>
+      {profile && (
+        <div className="profile-card">
+          <h2>Profile Information</h2>
+          <p><strong>Username:</strong> {profile.username}</p>
+          <p><strong>First Name:</strong> {profile.firstName}</p>
+          <p><strong>Last Name:</strong> {profile.lastName}</p>
+          <p><strong>Email:</strong> {profile.email}</p>
+          <p><strong>Phone Number:</strong> {profile.phoneNumber}</p>
+          <p><strong>Main Budget:</strong> {profile.mainBudget}</p>
+          <p><strong>Current Spent:</strong> {profile.currentSpent}</p>
+          <button onClick={() => setShowUpdateForm(true)} className="update-button">Update Profile</button>
         </div>
-      ) : (
-        <div>
-          <h1>Let's create your profile!</h1>
-          <form onSubmit={handleCreateProfile}>
-            <label>Username:</label>
-            <input
-              type="text"
-              name="username"
-              value={newProfile.username}
-              onChange={handleInputChange}
-              required
-            />
-            <label>First Name:</label>
-            <input
-              type="text"
-              name="firstName"
-              value={newProfile.firstName}
-              onChange={handleInputChange}
-              required
-            />
-            <label>Last Name:</label>
-            <input
-              type="text"
-              name="lastName"
-              value={newProfile.lastName}
-              onChange={handleInputChange}
-              required
-            />
-            <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={newProfile.email}
-              onChange={handleInputChange}
-              required
-            />
-            <label>Phone Number:</label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              value={newProfile.phoneNumber}
-              onChange={handleInputChange}
-              required
-            />
-            <label>Main Budget:</label>
-            <input
-              type="number"
-              name="mainBudget"
-              value={newProfile.mainBudget}
-              onChange={handleInputChange}
-              required
-            />
-            <label>Current Spent:</label>
-            <input
-              type="number"
-              name="currentSpent"
-              value={newProfile.currentSpent}
-              onChange={handleInputChange}
-              required
-            />
-            <button type="submit">Create Profile</button>
+      )}
+
+      {showUpdateForm && (
+        <div className="update-form-container">
+          <h2>Update Your Profile</h2>
+          <form onSubmit={handleUpdateProfile} className="update-form">
+            <label>
+              Username:
+              <input
+                type="text"
+                name="username"
+                value={newProfile.username}
+                readOnly
+              />
+            </label>
+            <label>
+              First Name:
+              <input
+                type="text"
+                name="firstName"
+                value={newProfile.firstName}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Last Name:
+              <input
+                type="text"
+                name="lastName"
+                value={newProfile.lastName}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Email:
+              <input
+                type="email"
+                name="email"
+                value={newProfile.email}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Phone Number:
+              <input
+                type="text"
+                name="phoneNumber"
+                value={newProfile.phoneNumber}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Main Budget:
+              <input
+                type="number"
+                name="mainBudget"
+                value={newProfile.mainBudget}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Current Spent:
+              <input
+                type="number"
+                name="currentSpent"
+                value={newProfile.currentSpent}
+                onChange={handleInputChange}
+              />
+            </label>
+            <div className="form-actions">
+              <button type="submit" className="save-button">Save Changes</button>
+              <button type="button" onClick={() => setShowUpdateForm(false)} className="cancel-button">Cancel</button>
+            </div>
           </form>
         </div>
       )}
