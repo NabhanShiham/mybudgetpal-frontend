@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api';
 import './styles/Dashboard.css';
 
@@ -20,23 +21,23 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchUserId = async () => {
-        try {
-            const response = await api.get('/user-id', { withCredentials: true });
-            if (response.status === 200) {
-                setUserId(response.data);
-            } else {
-                console.error('Failed to fetch userId, status:', response.status);
-                setError('Failed to fetch userId');
-            }
-        } catch (error) {
-            console.error('Failed to fetch userId', error);
-            setError('Failed to fetch userId');
-            setLoading(false);
+      try {
+        const response = await api.get('/user-id', { withCredentials: true });
+        if (response.status === 200) {
+          setUserId(response.data);
+        } else {
+          console.error('Failed to fetch userId, status:', response.status);
+          setError('Failed to fetch userId');
         }
+      } catch (error) {
+        console.error('Failed to fetch userId', error);
+        setError('Failed to fetch userId');
+        setLoading(false);
+      }
     };
 
     fetchUserId();
-}, []);
+  }, []);
 
   useEffect(() => {
     if (userId) {
@@ -64,7 +65,8 @@ function Dashboard() {
             if (error.response.status === 401) {
               setError('Unauthorized Access');
             } else if (error.response.status === 404) {
-              setError('User profile not found');
+              setError(null);
+              setShowUpdateForm(true);
             } else {
               setError('Failed to fetch user profile');
             }
@@ -114,6 +116,25 @@ function Dashboard() {
     }
   };
 
+  const handleCreateProfile = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await api.post('/user-profiles', newProfile, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setProfile(response.data);
+      alert('Profile created successfully');
+      setShowUpdateForm(false);
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      setError('Failed to create profile');
+    }
+  };
+
   if (loading) {
     return <div className="dashboard-loading">Loading...</div>;
   }
@@ -124,6 +145,15 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
+      <nav className="navbar">
+        <ul>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/friends">Friends</Link></li>
+          <li><Link to="/dashboard">Dashboard</Link></li>
+          <li><Link to="/collaborate">Collaborate</Link></li>
+          <li><Link to="/uom">UOM</Link></li>
+        </ul>
+      </nav>
       <h1>Welcome to Your Dashboard</h1>
       {profile && (
         <div className="profile-card">
@@ -141,8 +171,8 @@ function Dashboard() {
 
       {showUpdateForm && (
         <div className="update-form-container">
-          <h2>Update Your Profile</h2>
-          <form onSubmit={handleUpdateProfile} className="update-form">
+          <h2>{profile ? 'Update Your Profile' : 'Create Your Profile'}</h2>
+          <form onSubmit={profile ? handleUpdateProfile : handleCreateProfile} className="update-form">
             <label>
               Username:
               <input
@@ -207,10 +237,39 @@ function Dashboard() {
               />
             </label>
             <div className="form-actions">
-              <button type="submit" className="save-button">Save Changes</button>
+              <button type="submit" className="save-button">{profile ? 'Save Changes' : 'Create Profile'}</button>
               <button type="button" onClick={() => setShowUpdateForm(false)} className="cancel-button">Cancel</button>
             </div>
           </form>
+        </div>
+      )}
+
+      {profile && (
+        <div className="budget-progress">
+          <h2>Budget Progress</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Current Spent</th>
+                <th>Main Budget</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{profile.currentSpent}</td>
+                <td>{profile.mainBudget}</td>
+                <td>
+                  <div className="progress-bar">
+                    <div
+                      className="progress"
+                      style={{ width: `${(profile.currentSpent / profile.mainBudget) * 100}%` }}
+                    ></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       )}
     </div>

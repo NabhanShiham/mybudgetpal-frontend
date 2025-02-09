@@ -4,6 +4,8 @@ import HomePage from './components/HomePage';
 import Login from './components/Login.js';
 import Dashboard from './components/Dashboard.js';
 import './App.css';
+import FriendsPage from './components/FriendsPage.js';
+import CollaborateProject from './components/CollaborateProject.js';
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />}/>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/friends" element= {<FriendsPage />} /> 
+          <Route path="/collaborate" element=  {<CollaborateProject/>}/>
         </Routes>
       </div>
     </Router>

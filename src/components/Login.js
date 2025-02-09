@@ -27,6 +27,7 @@ const LoginPage = () => {
       });
       if (response.status === 200) {
         console.log('Login Success.');
+        
         navigate('/dashboard');
       }
     } catch (error) {

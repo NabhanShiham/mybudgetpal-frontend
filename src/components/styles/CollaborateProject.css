@@ -1,0 +1,130 @@
+/* Collaborate Project Page Styles */
+.collaborate-project-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.navbar {
+  background-color: #007bff;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.navbar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.navbar ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* Messages */
+.message {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+/* Buttons */
+.toggle-form-button, .create-project-button, .accept-button, .reject-button, .manage-button, .add-contribution-button, .toggle-receipts-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.toggle-form-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.create-project-button, .add-contribution-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.accept-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.reject-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.manage-button {
+  background-color: #ffc107;
+  color: black;
+}
+
+.toggle-receipts-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* Form */
+.collaborate-form, .contribution-form {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.collaborate-form label, .contribution-form label {
+  display: block;
+  font-weight: bold;
+}
+
+.collaborate-form input, .contribution-form input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+}
+
+/* Projects */
+.project-card, .request-card {
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+}
+
+/* Receipt Table */
+.receipt-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.receipt-table th, .receipt-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.receipt-table img {
+  max-width: 100px;
+  border-radius: 5px;
+}
