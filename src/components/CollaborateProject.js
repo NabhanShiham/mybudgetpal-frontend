@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
 import './styles/CollaborateProject.css';
 
@@ -18,6 +18,8 @@ function CollaborateProject() {
   const [receiptFile, setReceiptFile] = useState(null);
   const [showReceipts, setShowReceipts] = useState(false);
   const [userId, setUserId] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -149,11 +151,21 @@ function CollaborateProject() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout', {}, { withCredentials: true });
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      setError('Failed to log out');
+    }
+  };
+
   return (
     <div className="collaborate-project-container">
       <nav className="navbar">
         <ul>
-          <li><Link to="/">Home</Link></li>
+          <li><Link to="/" onClick={handleLogout}>Logout</Link></li>
           <li><Link to="/friends">Friends</Link></li>
           <li><Link to="/dashboard">Dashboard</Link></li>
           <li><Link to="/collaborate">Collaborate</Link></li>

@@ -28,48 +28,40 @@
   font-weight: bold;
 }
 
-.profile-card {
+.profile-card, .update-form-container, .category-card, .add-category-popup, .manage-category-modal, .receipts-popup {
   background: white;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dee2e6;
   margin-top: 20px;
 }
 
-.profile-card p {
+.profile-card p, .update-form label, .add-category-popup label, .manage-category-modal label {
   margin: 5px 0;
   font-size: 1rem;
+  font-weight: bold;
+}
+
+.update-button, .add-category-button, .save-button, .cancel-button, .show-receipts-button, .blue-button, .green-button, .manage-button, .delete-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 5px;
 }
 
 .update-button {
   background-color: #28a745;
   color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
 }
 
 .update-button:hover {
   background-color: #218838;
 }
 
-.update-form-container {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-}
-
-.update-form label {
-  display: block;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.update-form input {
+.update-form input, .add-category-popup input, .manage-category-modal input {
   width: 100%;
   padding: 8px;
   border: 1px solid #ced4da;
@@ -85,10 +77,6 @@
 .save-button {
   background-color: #007bff;
   color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
 .save-button:hover {
@@ -98,10 +86,6 @@
 .cancel-button {
   background-color: #dc3545;
   color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
 .cancel-button:hover {
@@ -112,12 +96,12 @@
   margin-top: 20px;
 }
 
-.budget-progress table {
+.budget-progress table, .receipts-popup table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.budget-progress th, .budget-progress td {
+.budget-progress th, .budget-progress td, .receipts-popup th, .receipts-popup td {
   padding: 10px;
   text-align: center;
   border: 1px solid #dee2e6;
@@ -133,4 +117,109 @@
 .progress {
   height: 15px;
   background-color: #007bff;
+}
+
+.categories-container {
+  margin-top: 20px;
+}
+
+.categories-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.add-category-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.add-category-button:hover {
+  background-color: #218838;
+}
+
+.add-category-popup button, .manage-category-modal button, .receipts-popup button {
+  background-color: #007bff;
+  color: white;
+}
+
+.add-category-popup button:hover, .manage-category-modal button:hover, .receipts-popup button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: #dc3545;
+  margin-top: 10px;
+}
+
+.receipts-popup img {
+  max-width: 100px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.receipts-popup img.enlarged {
+  max-width: 500px;
+  height: auto;
+  transform: scale(1.5);
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  margin-right: 10px;
+}
+
+.form-group input {
+  flex: 1;
+}
+
+.blue-button {
+  background-color: blue;
+  color: white;
+}
+
+.blue-button:hover {
+  background-color: darkblue;
+}
+
+.green-button {
+  background-color: green;
+  color: white;
+}
+
+.green-button:hover {
+  background-color: darkgreen;
+}
+
+.manage-button {
+  background-color: #ffc107;
+  color: black;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.profile-table th, .profile-table td {
+  padding: 10px;
+  border: 1px solid #dee2e6;
+  text-align: left;
+}
+
+.profile-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
 }

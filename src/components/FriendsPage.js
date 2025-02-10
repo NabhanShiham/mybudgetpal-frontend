@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
 import './styles/FriendsPage.css';
 
@@ -13,6 +13,8 @@ function FriendsPage() {
   const [projectName, setProjectName] = useState('');
   const [projectGoal, setProjectGoal] = useState('');
   const [userId, setUserId] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -104,11 +106,21 @@ function FriendsPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout', {}, { withCredentials: true });
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      setError('Failed to log out');
+    }
+  };
+
   return (
     <div className="friends-page-container">
       <nav className="navbar">
         <ul>
-          <li><Link to="/">Home</Link></li>
+          <li><Link to="/" onClick={handleLogout}>Logout</Link></li>
           <li><Link to="/friends">Friends</Link></li>
           <li><Link to="/dashboard">Dashboard</Link></li>
           <li><Link to="/collaborate">Collaborate</Link></li>
