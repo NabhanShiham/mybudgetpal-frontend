@@ -135,11 +135,11 @@ function FriendsPage() {
           <label>
             Friend's Username:
             <input
-                type="text"
-                name="friendUsername"
-                value={friendUsername}
-                onChange={(e) => setFriendUsername(e.target.value)}
-                placeholder="Enter friend's username"
+              type="text"
+              name="friendUsername"
+              value={friendUsername}
+              onChange={(e) => setFriendUsername(e.target.value)}
+              placeholder="Enter friend's username"
             />
           </label>
           <button type="submit" className="add-friend-button">Add Friend</button>
@@ -162,9 +162,11 @@ function FriendsPage() {
         <ul>
           {pendingRequests.map((request) => (
             <li key={request.id}>
-              {request.userId}
-              <button onClick={() => handleAcceptRequest(request.id)} className="accept-button">Accept</button>
-              <button onClick={() => handleRejectRequest(request.id)} className="reject-button">Reject</button>
+              <div>{request.friendUsername}</div>
+              <div>
+                <button onClick={() => handleAcceptRequest(request.id)} className="accept-button">Accept</button>
+                <button onClick={() => handleRejectRequest(request.id)} className="reject-button">Reject</button>
+              </div>
             </li>
           ))}
         </ul>

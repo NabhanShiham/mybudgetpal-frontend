@@ -24,17 +24,13 @@ function CollaborateProject() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        await api.get('/auth/user', { withCredentials: true });
+        const userResponse = await api.get('/auth/user', { withCredentials: true });
+        setUserId(userResponse.data.id);
 
-        // Fetch user ID
-        const userIdResponse = await api.get('/user-id', { withCredentials: true });
-        setUserId(userIdResponse.data);
-
-        // Fetch data
         fetchFriends();
-        fetchIncomingRequests();
-        fetchActiveProjects();
-        fetchPendingProjects();
+        fetchIncomingRequests(userResponse.data.id);
+        fetchActiveProjects(userResponse.data.id);
+        fetchPendingProjects(userResponse.data.id);
       } catch (error) {
         setError('Failed to fetch user data');
       }
@@ -55,9 +51,9 @@ function CollaborateProject() {
     }
   };
 
-  const fetchIncomingRequests = async () => {
+  const fetchIncomingRequests = async (userId) => {
     try {
-      const response = await api.get('/collaborateProjects/incomingRequests', { withCredentials: true });
+      const response = await api.get(`/collaborateProjects/incomingRequests?userId=${userId}`, { withCredentials: true });
       setIncomingRequests(response.data);
     } catch (error) {
       if (error.response && error.response.status !== 404) {
@@ -66,9 +62,9 @@ function CollaborateProject() {
     }
   };
 
-  const fetchPendingProjects = async () => {
+  const fetchPendingProjects = async (userId) => {
     try {
-      const response = await api.get('/collaborateProjects/pending', { withCredentials: true });
+      const response = await api.get(`/collaborateProjects/pending?userId=${userId}`, { withCredentials: true });
       setPendingProjects(response.data);
     } catch (error) {
       if (error.response && error.response.status !== 404) {
@@ -77,9 +73,9 @@ function CollaborateProject() {
     }
   };
 
-  const fetchActiveProjects = async () => {
+  const fetchActiveProjects = async (userId) => {
     try {
-      const response = await api.get('/collaborateProjects/active', { withCredentials: true });
+      const response = await api.get(`/collaborateProjects/active?userId=${userId}`, { withCredentials: true });
       setActiveProjects(response.data);
     } catch (error) {
       setError('Failed to fetch active projects');
@@ -102,7 +98,7 @@ function CollaborateProject() {
       setProjectGoal('');
       setSelectedFriends([]);
       alert('Collaborate project request sent');
-      fetchPendingProjects(); // Refresh pending projects
+      fetchPendingProjects(userId); // Refresh pending projects
     } catch (error) {
       setError('Failed to create collaborate project');
     }
@@ -113,7 +109,7 @@ function CollaborateProject() {
       await api.post(`/collaborateProjects/invitations/${projectId}/accept?userId=${userId}`, {}, { withCredentials: true });
       setIncomingRequests(incomingRequests.filter(request => request.id !== projectId));
       alert('Project request accepted');
-      fetchActiveProjects(); // Refresh active projects
+      fetchActiveProjects(userId); // Refresh active projects
     } catch (error) {
       setError('Failed to accept project request');
     }
@@ -145,7 +141,7 @@ function CollaborateProject() {
       setContributionAmount('');
       setReceiptFile(null);
       setSelectedProject(null);
-      fetchActiveProjects(); // Refresh active projects
+      fetchActiveProjects(userId); // Refresh active projects
     } catch (error) {
       setError('Failed to add contribution');
     }

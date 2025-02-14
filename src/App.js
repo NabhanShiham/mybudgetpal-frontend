@@ -6,6 +6,8 @@ import Dashboard from './components/Dashboard.js';
 import './App.css';
 import FriendsPage from './components/FriendsPage.js';
 import CollaborateProject from './components/CollaborateProject.js';
+import RegisterPage from './components/RegisterPage.js';
+
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/friends" element= {<FriendsPage />} /> 
           <Route path="/collaborate" element=  {<CollaborateProject/>}/>
+          <Route path="/register" element={<RegisterPage/>} />
         </Routes>
       </div>
     </Router>

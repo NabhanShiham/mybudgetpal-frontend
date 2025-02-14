@@ -10,6 +10,10 @@ function HomePage() {
       <Link to="/login">
         <button>Login</button>
       </Link>
+      <br/>
+      <Link to="/register">
+        <button>Register</button>
+      </Link>
     </div>
   );
 }
