@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
-import './styles/CollaborateProject.css';
+import './styles/UOM.css';
 
-function CollaborateProject() {
+function UOM() {
   const [friends, setFriends] = useState([]);
   const [projectName, setProjectName] = useState('');
   const [projectGoal, setProjectGoal] = useState('');
@@ -18,7 +18,6 @@ function CollaborateProject() {
   const [receiptFile, setReceiptFile] = useState(null);
   const [showReceipts, setShowReceipts] = useState(false);
   const [userId, setUserId] = useState('');
-  const [newGoal, setNewGoal] = useState('');
 
   const navigate = useNavigate();
 
@@ -148,19 +147,6 @@ function CollaborateProject() {
     }
   };
 
-  const handleUpdateGoal = async (projectId) => {
-    try {
-      await api.put(`/collaborateProjects/${projectId}/goal`, null, {
-        params: { newGoal },
-        withCredentials: true,
-      });
-      alert('Project goal updated');
-      fetchActiveProjects(userId); // Refresh active projects
-    } catch (error) {
-      setError('Failed to update project goal');
-    }
-  };
-
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout', {}, { withCredentials: true });
@@ -182,10 +168,10 @@ function CollaborateProject() {
           <li><Link to="/uom">UOM</Link></li>
         </ul>
       </nav>
-      <h1>Collaborate Projects</h1>
+      <h1>You Owe Me!</h1>
       {error && <div className="message">{error}</div>}
       <button onClick={() => setShowForm(!showForm)} className="toggle-form-button">
-        {showForm ? 'Hide Form' : 'Create New Project'}
+        {showForm ? 'Hide Form' : 'Create new UOM'}
       </button>
       {showForm && (
         <div className="collaborate-form">
@@ -248,7 +234,7 @@ function CollaborateProject() {
       )}
       {pendingProjects.length > 0 && (
         <>
-          <h2>Pending Collaborate Projects</h2>
+          <h2>Pending UOMs</h2>
           <div className="pending-projects">
             {pendingProjects.map((project) => (
               <div key={project.id} className="project-card">
@@ -260,7 +246,7 @@ function CollaborateProject() {
           </div>
         </>
       )}
-      <h2>Active Collaborate Projects</h2>
+      <h2>Active UOMs</h2>
       <div className="active-projects">
         {activeProjects.length > 0 ? (
           activeProjects.map((project) => (
@@ -274,20 +260,6 @@ function CollaborateProject() {
               </button>
               {selectedProject === project.id && (
                 <div>
-                  {project.creatorId === userId && (
-                    <div className="update-goal-form">
-                      <label>
-                        New Goal:
-                        <input
-                          type="number"
-                          value={newGoal}
-                          onChange={(e) => setNewGoal(e.target.value)}
-                          placeholder="Enter new goal"
-                        />
-                      </label>
-                      <button onClick={() => handleUpdateGoal(project.id)} className="update-goal-button">Update Goal</button>
-                    </div>
-                  )}
                   <div className="contribution-form">
                     <label>
                       Contribution Amount:
@@ -337,11 +309,11 @@ function CollaborateProject() {
             </div>
           ))
         ) : (
-          <p>No active collaborate projects</p>
+          <p>No active UOMs</p>
         )}
       </div>
     </div>
   );
 }
 
-export default CollaborateProject;
+export default UOM;

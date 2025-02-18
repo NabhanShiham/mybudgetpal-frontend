@@ -54,6 +54,8 @@ const LoginPage = () => {
         <button type="submit" disabled={!username || !password}>
           Login
         </button>
+        <br/>
+        <button onClick={()=> navigate("/")}>Back</button>
       </form>
     </div>
   );

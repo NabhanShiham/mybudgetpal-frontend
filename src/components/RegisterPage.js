@@ -60,6 +60,8 @@ const RegisterPage = () => {
         <button type="submit" disabled={!username || !email || !password}>
           Register
         </button>
+        <br/>
+        <button onClick={()=> navigate("/")}>Back</button>
       </form>
     </div>
   );

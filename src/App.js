@@ -7,6 +7,7 @@ import './App.css';
 import FriendsPage from './components/FriendsPage.js';
 import CollaborateProject from './components/CollaborateProject.js';
 import RegisterPage from './components/RegisterPage.js';
+import UOM from './components/UOM.js';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/friends" element= {<FriendsPage />} /> 
           <Route path="/collaborate" element=  {<CollaborateProject/>}/>
           <Route path="/register" element={<RegisterPage/>} />
+          <Route path="/uom" element={<UOM/>} />
         </Routes>
       </div>
     </Router>

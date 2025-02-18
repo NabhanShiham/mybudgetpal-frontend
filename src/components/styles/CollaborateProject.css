@@ -128,3 +128,36 @@ h1, h2, h3 {
   max-width: 100px;
   border-radius: 5px;
 }
+
+/* New Goal Form */
+.update-goal-form {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.update-goal-form label {
+  display: block;
+  font-weight: bold;
+}
+
+.update-goal-form input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+}
+
+.update-goal-button {
+  background-color: #ffc107;
+  color: black;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
