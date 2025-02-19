@@ -161,3 +161,15 @@ h1, h2, h3 {
   cursor: pointer;
   font-weight: bold;
 }
+
+.delete-project-button {
+  background-color: #dc3545;
+  color: white;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}

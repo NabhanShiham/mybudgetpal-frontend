@@ -171,6 +171,16 @@ function CollaborateProject() {
     }
   };
 
+  const handleDeleteProject = async (projectId) => {
+    try {
+      await api.delete(`/collaborateProjects/${projectId}`, { withCredentials: true });
+      alert('Project deleted successfully');
+      fetchActiveProjects(userId); // Refresh active projects
+    } catch (error) {
+      setError('Failed to delete project');
+    }
+  };
+
   return (
     <div className="collaborate-project-container">
       <nav className="navbar">
@@ -275,18 +285,21 @@ function CollaborateProject() {
               {selectedProject === project.id && (
                 <div>
                   {project.creatorId === userId && (
-                    <div className="update-goal-form">
-                      <label>
-                        New Goal:
-                        <input
-                          type="number"
-                          value={newGoal}
-                          onChange={(e) => setNewGoal(e.target.value)}
-                          placeholder="Enter new goal"
-                        />
-                      </label>
-                      <button onClick={() => handleUpdateGoal(project.id)} className="update-goal-button">Update Goal</button>
-                    </div>
+                    <>
+                      <div className="update-goal-form">
+                        <label>
+                          New Goal:
+                          <input
+                            type="number"
+                            value={newGoal}
+                            onChange={(e) => setNewGoal(e.target.value)}
+                            placeholder="Enter new goal"
+                          />
+                        </label>
+                        <button onClick={() => handleUpdateGoal(project.id)} className="update-goal-button">Update Goal</button>
+                      </div>
+                      <button onClick={() => handleDeleteProject(project.id)} className="delete-project-button">Delete Project</button>
+                    </>
                   )}
                   <div className="contribution-form">
                     <label>
