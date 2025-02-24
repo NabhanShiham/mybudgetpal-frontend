@@ -5,9 +5,10 @@ import './styles/UOM.css';
 
 function UOM() {
   const [friends, setFriends] = useState([]);
-  const [projectName, setProjectName] = useState('');
-  const [projectGoal, setProjectGoal] = useState('');
   const [selectedFriends, setSelectedFriends] = useState([]);
+  const [receiptId, setReceiptId] = useState('');
+  const [amount, setAmount] = useState('');
+  const [billFile, setBillFile] = useState(null);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [incomingRequests, setIncomingRequests] = useState([]);
@@ -18,6 +19,7 @@ function UOM() {
   const [receiptFile, setReceiptFile] = useState(null);
   const [showReceipts, setShowReceipts] = useState(false);
   const [userId, setUserId] = useState('');
+  const [newAmount, setNewAmount] = useState(''); // Renamed newGoal to newAmount
 
   const navigate = useNavigate();
 
@@ -53,85 +55,121 @@ function UOM() {
 
   const fetchIncomingRequests = async (userId) => {
     try {
-      const response = await api.get(`/collaborateProjects/incomingRequests?userId=${userId}`, { withCredentials: true });
+      const response = await api.get(`/uom/incomingRequests?userId=${userId}`, { withCredentials: true });
       setIncomingRequests(response.data);
     } catch (error) {
       if (error.response && error.response.status !== 404) {
-        setError('Failed to fetch incoming project requests');
+        setError('Failed to fetch incoming UOM requests');
       }
     }
   };
 
   const fetchPendingProjects = async (userId) => {
     try {
-      const response = await api.get(`/collaborateProjects/pending?userId=${userId}`, { withCredentials: true });
+      const response = await api.get(`/uom/pending?userId=${userId}`, { withCredentials: true });
       setPendingProjects(response.data);
     } catch (error) {
       if (error.response && error.response.status !== 404) {
-        setError('Failed to fetch pending project requests');
+        setError('Failed to fetch pending UOM requests');
       }
     }
   };
 
   const fetchActiveProjects = async (userId) => {
     try {
-      const response = await api.get(`/collaborateProjects/active?userId=${userId}`, { withCredentials: true });
+      const response = await api.get(`/uom/active?userId=${userId}`, { withCredentials: true });
       setActiveProjects(response.data);
     } catch (error) {
-      setError('Failed to fetch active projects');
+      setError('Failed to fetch active UOMs');
     }
   };
 
-  const handleCreateProject = async () => {
+  const handleCreateUOM = async () => {
+    const formData = new FormData();
+    const project = {
+      receiptId,
+      amount,
+    };
+
     try {
-      const memberIds = await Promise.all(selectedFriends.map(async (friendUsername) => {
+      const debtorIds = await Promise.all(selectedFriends.map(async (friendUsername) => {
         const response = await api.get(`/users/username/${friendUsername}`, { withCredentials: true });
         return response.data.id;
       }));
 
-      await api.post('/collaborateProjects', {
-        name: projectName,
-        goal: projectGoal,
-        memberIds: memberIds,
-      }, { withCredentials: true });
-      setProjectName('');
-      setProjectGoal('');
+      project.debtorId = debtorIds[0]; // Assuming only one debtor for simplicity
+
+      formData.append('project', new Blob([JSON.stringify(project)], { type: 'application/json' }));
+      formData.append('receiptFile', billFile);
+
+      await api.post('/uom', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      alert('UOM created successfully');
+      setReceiptId('');
+      setAmount('');
+      setBillFile(null);
       setSelectedFriends([]);
-      alert('Collaborate project request sent');
-      fetchPendingProjects(userId); // Refresh pending projects
+      fetchPendingProjects(userId); // Refresh pending UOMs
     } catch (error) {
-      setError('Failed to create collaborate project');
+      setError('Failed to create UOM');
     }
   };
 
-  const handleAcceptRequest = async (projectId) => {
+  const handleAcceptRequest = async (uomId) => {
     try {
-      await api.post(`/collaborateProjects/invitations/${projectId}/accept?userId=${userId}`, {}, { withCredentials: true });
-      setIncomingRequests(incomingRequests.filter(request => request.id !== projectId));
-      alert('Project request accepted');
+      await api.post(`/uom/invitations/${uomId}/accept?userId=${userId}`, {}, { withCredentials: true });
+      setIncomingRequests(incomingRequests.filter(request => request.id !== uomId));
+      alert('UOM request accepted');
+      fetchActiveProjects(userId); // Refresh active UOMs
+    } catch (error) {
+      setError('Failed to accept UOM request');
+    }
+  };
+
+  const handleRejectRequest = async (uomId) => {
+    try {
+      await api.delete(`/uom/reject/${uomId}`, { data: { userId }, withCredentials: true });
+      setIncomingRequests(incomingRequests.filter(request => request.id !== uomId));
+      alert('UOM request rejected');
+    } catch (error) {
+      setError('Failed to reject UOM request');
+    }
+  };
+
+  const handleDeleteProject = async (projectId) => {
+    try {
+      await api.delete(`/uom/${projectId}`, { withCredentials: true });
+      alert('Project deleted successfully');
       fetchActiveProjects(userId); // Refresh active projects
     } catch (error) {
-      setError('Failed to accept project request');
+      setError('Failed to delete project');
     }
   };
 
-  const handleRejectRequest = async (projectId) => {
+  const handleUpdateAmount = async (projectId) => {
     try {
-      await api.delete(`/collaborateProjects/invitations/${projectId}/reject?userId=${userId}`, { withCredentials: true });
-      setIncomingRequests(incomingRequests.filter(request => request.id !== projectId));
-      alert('Project request rejected');
+      await api.put(`/uom/${projectId}/amount`, null, {
+        params: { newAmount }, // Updated to newAmount
+        withCredentials: true,
+      });
+      alert('Project goal updated');
+      fetchActiveProjects(userId); // Refresh active projects
     } catch (error) {
-      setError('Failed to reject project request');
+      setError('Failed to update project goal');
     }
   };
 
-  const handleAddContribution = async (projectId) => {
+  const handleAddContribution = async (uomId) => {
     const formData = new FormData();
     formData.append('amount', contributionAmount);
     formData.append('receiptFile', receiptFile);
 
     try {
-      await api.post(`/collaborateProjects/${projectId}/contribute`, formData, {
+      await api.post(`/uom/${uomId}/contribute`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -141,7 +179,7 @@ function UOM() {
       setContributionAmount('');
       setReceiptFile(null);
       setSelectedProject(null);
-      fetchActiveProjects(userId); // Refresh active projects
+      fetchActiveProjects(userId); // Refresh active UOMs
     } catch (error) {
       setError('Failed to add contribution');
     }
@@ -176,24 +214,32 @@ function UOM() {
       {showForm && (
         <div className="collaborate-form">
           <label>
-            Project Name:
+            Receipt ID:
             <input
               type="text"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Enter project name"
+              value={receiptId}
+              onChange={(e) => setReceiptId(e.target.value)}
+              placeholder="Enter receipt ID"
             />
           </label>
           <label>
-            Project Goal:
+            Amount:
             <input
               type="number"
-              value={projectGoal}
-              onChange={(e) => setProjectGoal(e.target.value)}
-              placeholder="Enter project goal"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Enter amount"
             />
           </label>
-          <h3>Select Friends</h3>
+          <label>
+            Bill/Invoice:
+            <input
+              type="file"
+              onChange={(e) => setBillFile(e.target.files[0])}
+              accept="application/pdf,image/*"
+            />
+          </label>
+          <h3>Select Friend</h3>
           <ul>
             {friends.map((friend) => (
               <li key={friend.id}>
@@ -214,17 +260,17 @@ function UOM() {
               </li>
             ))}
           </ul>
-          <button onClick={handleCreateProject} className="create-project-button">Create Project</button>
+          <button onClick={handleCreateUOM} className="create-project-button">Create UOM</button>
         </div>
       )}
       {incomingRequests.length > 0 && (
         <>
-          <h2>Incoming Project Requests</h2>
+          <h2>Incoming UOM Requests</h2>
           <div className="incoming-requests">
             {incomingRequests.map((request) => (
               <div key={request.id} className="request-card">
-                <h3>{request.name}</h3>
-                <p>Goal: {request.goal}</p>
+                <h3>{request.receiptId}</h3>
+                <p>Amount: {request.amount}</p>
                 <button onClick={() => handleAcceptRequest(request.id)} className="accept-button">Accept</button>
                 <button onClick={() => handleRejectRequest(request.id)} className="reject-button">Reject</button>
               </div>
@@ -238,8 +284,8 @@ function UOM() {
           <div className="pending-projects">
             {pendingProjects.map((project) => (
               <div key={project.id} className="project-card">
-                <h3>{project.name}</h3>
-                <p>Goal: ${project.goal}</p>
+                <h3>{project.receiptId}</h3>
+                <p>Amount: ${project.amount}</p>
                 <p>Status: Pending</p>
               </div>
             ))}
@@ -251,23 +297,40 @@ function UOM() {
         {activeProjects.length > 0 ? (
           activeProjects.map((project) => (
             <div key={project.id} className="project-card">
-              <h3>{project.name}</h3>
-              <p>Goal: ${project.goal}</p>
-              <p>Progress: ${project.currentProgress} / ${project.goal}</p>
-              <progress value={project.currentProgress} max={project.goal}></progress>
+              <h3>{project.receiptId}</h3>
+              <p>Amount: ${project.amount}</p>
+              <p>Currently Paid: ${project.currentProgress} / ${project.amount}</p>
+              <progress value={project.currentProgress} max={project.amount}></progress>
               <button onClick={() => setSelectedProject(selectedProject === project.id ? null : project.id)} className="manage-button">
                 {selectedProject === project.id ? 'Hide Manage' : 'Manage'}
               </button>
               {selectedProject === project.id && (
                 <div>
+                  {project.creator === userId && (
+                    <>
+                      <div className="update-goal-form">
+                        <label>
+                          New Goal:
+                          <input
+                            type="number"
+                            value={newAmount} // Updated to newAmount
+                            onChange={(e) => setNewAmount(e.target.value)} // Updated to newAmount
+                            placeholder="Enter new goal"
+                          />
+                        </label>
+                        <button onClick={() => handleUpdateAmount(project.id)} className="update-goal-button">Update Goal</button>
+                      </div>
+                      <button onClick={() => handleDeleteProject(project.id)} className="delete-project-button">Delete Project</button>
+                    </>
+                  )}
                   <div className="contribution-form">
                     <label>
-                      Contribution Amount:
+                      Currently Paid:
                       <input
                         type="number"
                         value={contributionAmount}
                         onChange={(e) => setContributionAmount(e.target.value)}
-                        placeholder="Enter contribution amount"
+                        placeholder="Enter payment amount"
                       />
                     </label>
                     <label>
