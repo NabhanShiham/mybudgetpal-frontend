@@ -1,7 +1,7 @@
 # MyBudgetPal Frontend
 
 ## Overview
-This is the frontend application for MyBudgetPal, built with React. It provides a user interface for managing budgets, user profiles, and collaborative projects.
+This is the frontend application for MyBudgetPal, built with React. It provides a user interface for managing budgets, user profiles, collaborative projects, and easy debt management. 
 
 ## Technologies
 - JavaScript
